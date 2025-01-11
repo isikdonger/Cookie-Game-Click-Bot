@@ -1,4 +1,6 @@
 import os
+
+import keyboard
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
@@ -30,7 +32,6 @@ with open("save_hash.txt", "r") as file:
 alert.accept()
 
 timeout = time.time() + 5
-five_min = time.time() + 60 * 0.1  # 5 minutes
 
 cookie_upgrades = {}
 item_prices = []
@@ -52,6 +53,16 @@ def update_upgrades():
     # Store items and prices in a dictionary
     for n in range(len(item_prices)):
         cookie_upgrades[item_prices[n]] = item_ids[n]
+
+
+# The logic to check for window close or ESC key press
+def is_window_open(driver):
+    try:
+        # Check if the current window handle is still valid
+        driver.current_window_handle
+        return True
+    except:
+        return False
 
 
 while True:
@@ -83,7 +94,7 @@ while True:
         timeout = time.time() + 5
 
     # After 5 minutes stop the bot and check the cookies per second count.
-    if time.time() > five_min:
+    if not is_window_open(driver) or keyboard.is_pressed("esc"):
         time.sleep(1)
         update_upgrades()
         save_hash = f"0.1251|{cookie_count}"
@@ -99,3 +110,6 @@ while True:
             file.write(save_hash)
         driver.find_element(By.ID, "exportSave").click()
         break
+
+
+driver.quit()
